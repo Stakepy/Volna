@@ -6,7 +6,7 @@ asyncio
 datetime
 FFmpeg
 
-pip install discord.py pytz asyncio datetime
+pip install discord.py pytz asyncio datetime youtube.dl
 
 FFmpeg:
 
