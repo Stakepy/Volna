@@ -2,9 +2,10 @@ import discord
 from discord.ext import commands, tasks
 import youtube_dl
 import asyncio
+import os
 
-TOKEN = 'TOKEN'
-VOICE_CHANNEL_ID = ID
+TOKEN = 'token'  # Замените на ваш реальный токен
+VOICE_CHANNEL_ID = id
 RADIO_URL = 'https://nashe1.hostingradio.ru:80/nashe-128.mp3'
 
 intents = discord.Intents.default()
@@ -59,6 +60,8 @@ class RadioPlayer:
                     print("Playing radio.")
                 except Exception as e:
                     print(f"Error playing radio: {e}")
+                    await asyncio.sleep(5)  # Wait a bit before retrying
+                    await self.play_radio()  # Retry playing radio
             else:
                 print("Already playing.")
         else:
@@ -96,7 +99,6 @@ async def on_voice_state_update(member, before, after):
             await asyncio.sleep(1)  # Give time for state update
             channel = bot.get_channel(VOICE_CHANNEL_ID)
             if channel:
-                # Находим существующий voice client
                 voice_client = discord.utils.get(bot.voice_clients, guild=channel.guild)
                 if voice_client:
                     if voice_client.channel.id != VOICE_CHANNEL_ID:
@@ -107,18 +109,17 @@ async def on_voice_state_update(member, before, after):
                             print(f"Error moving bot to channel: {e}")
                 else:
                     try:
-                        bot.radio_player.voice_client = await channel.connect()  # Использовать bot.radio_player
+                        bot.radio_player.voice_client = await channel.connect()
                         print(f"Bot connected to {channel.name}.")
                     except discord.DiscordException as e:
                         print(f"Error connecting to channel: {e}")
 
-                # Убедитесь, что радио воспроизводится
                 if bot.radio_player.voice_client and bot.radio_player.voice_client.is_connected():
-                    await asyncio.sleep(1)  # Убедитесь, что соединение стабильно
+                    await asyncio.sleep(1)  # Ensure stable connection
                     if not bot.radio_player.voice_client.is_playing():
-                        await bot.radio_player.play_radio()  # Ensure we use await here
+                        await bot.radio_player.play_radio()
     else:
-        # Обработка событий других участников, если это необходимо
+        # Handle other members' voice state changes if needed
         pass
 
 bot.run(TOKEN)
